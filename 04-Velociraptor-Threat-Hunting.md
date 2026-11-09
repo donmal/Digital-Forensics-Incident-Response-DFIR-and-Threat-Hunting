@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This investigation documents a hands-on endpoint threat-hunting assessment conducted through Velociraptor against the authorized Windows lab endpoint `E-CORP`. The scenario began with suspected data exfiltration from an unusual process. Five targeted artifact collections identified suspicious executable memory in `reverse.exe`, a configured C2 IP address, Run-key persistence, Mimikatz-related files, and a recently accessed Microsoft Word document. These findings collectively support a suspicious endpoint activity hypothesis while preserving the distinction between observed artifacts and unverified attacker actions.
+This investigation documents a hands-on endpoint threat-hunting investigation conducted through Velociraptor against the authorized Windows lab endpoint `E-CORP`. The scenario began with suspected data exfiltration from an unusual process. Five targeted artifact collections identified suspicious executable memory in `reverse.exe`, a configured C2 IP address, Run-key persistence, Mimikatz-related files, and a recently accessed Microsoft Word document. These findings collectively support a suspicious endpoint activity hypothesis while preserving the distinction between observed artifacts and unverified attacker actions.
 
 ## Investigation Objectives
 
@@ -20,13 +20,13 @@ Velociraptor is an endpoint visibility, digital forensics, and incident response
 
 | Field | Value |
 |---|---|
-| Lab theme | Velociraptor Threat Hunting / Skills Assessment |
+| Investigation focus | Endpoint threat hunting and forensic artifact correlation |
 | Access method | RDP to the authorized training target |
 | Target address | `10.129.228.172` |
 | Velociraptor interface | `https://127.0.0.1:8889/app/index.html#/search/all` |
 | Selected client | `E-CORP` |
 | Client ID | `C.e0967723979c1134` |
-| Assessment scope | VAD analysis, C2 configuration, persistence, YARA detection, RecentDocs |
+| Investigation scope | VAD analysis, C2 configuration, persistence, YARA detection, RecentDocs |
 
 ## Data Sources
 
@@ -52,17 +52,7 @@ The Velociraptor web interface was opened on the authorized lab host. The client
 2. Open the local Velociraptor interface and authenticate using the supplied lab credentials.
 3. Filter the client list to online endpoints, select `E-CORP`, and open **Collected**.
 
-![Figure 01 — Client Discovery and Endpoint Selection](images/figure-01.png)
-
-*Figure 01. Velociraptor evidence captured during client discovery and endpoint selection.*
-
-![Figure 02 — Client Discovery and Endpoint Selection](images/figure-02.png)
-
-*Figure 02. Velociraptor evidence captured during client discovery and endpoint selection.*
-
-![Figure 03 — Client Discovery and Endpoint Selection](images/figure-03.png)
-
-*Figure 03. Velociraptor evidence captured during client discovery and endpoint selection.*
+Suggested evidence — Figure 1: Velociraptor client inventory showing the selected online E-CORP endpoint and its collection interface.
 
 ## Phase 1 — VAD-Based Process Injection Triage
 
@@ -70,15 +60,13 @@ A new collection was launched with `Exchange.Windows.Detection.Malfind`, a clien
 
 ### Evidence interpretation
 
-The suspicious process is `reverse.exe`. The reported executable-memory region warrants further validation through process lineage, image signing, network telemetry, and memory acquisition.
+**Finding**: VAD-based memory analysis identified **reverse.exe** as a process containing a suspicious executable-memory region with **xrw** permissions.
 
-![Figure 04 — Phase 1 — VAD-Based Process Injection Triage](images/figure-04.png)
+The reported executable-memory region warrants further validation through process lineage, image signing, network telemetry, and memory acquisition.
 
-*Figure 04. Velociraptor evidence captured during phase 1 — vad-based process injection triage.*
+The finding supports prioritizing **reverse.exe** for further investigation, but does not independently confirm process injection or identify the payload's execution history.
 
-![Figure 05 — Phase 1 — VAD-Based Process Injection Triage](images/figure-05.png)
-
-*Figure 05. Velociraptor evidence captured during phase 1 — vad-based process injection triage.*
+Suggested evidence — Figure 2: Velociraptor Malfind results showing reverse.exe and its suspicious executable-memory region, including the reported memory permissions.
 
 ## Phase 2 — Cobalt Strike Configuration Carving
 
@@ -91,15 +79,11 @@ The `Windows.Carving.CobaltStrike` artifact was collected to extract suspected C
 | `C2Server` | `3.19.219.4` |
 | `PostURI` | `/submit.php` |
 
-The configured IP is the lab answer; outbound connections should be corroborated separately before claiming communication.
+**Finding**: Configuration carving identified **3.19.219.4** as the configured command-and-control server address, with **/submit.php** recorded as the HTTP POST URI.
 
-![Figure 06 — Phase 2 — Cobalt Strike Configuration Carving](images/figure-06.png)
+Evidence limitation: The extracted configuration establishes the presence of C2-related settings, but successful outbound communication or data exfiltration would require independent validation through network telemetry.
 
-*Figure 06. Velociraptor evidence captured during phase 2 — cobalt strike configuration carving.*
-
-![Figure 07 — Phase 2 — Cobalt Strike Configuration Carving](images/figure-07.png)
-
-*Figure 07. Velociraptor evidence captured during phase 2 — cobalt strike configuration carving.*
+Suggested evidence — Figure 3: Velociraptor Cobalt Strike configuration-carving output showing C2Server: 3.19.219.4 and PostURI: /submit.php.
 
 ## Phase 3 — Persistence via Startup Registry
 
@@ -113,13 +97,11 @@ Value: reverse
 Data: C:\Users\j0seph\AppData\Local\reverse.exe
 ```
 
-![Figure 08 — Phase 3 — Persistence via Startup Registry](images/figure-08.png)
+**Finding**: Registry startup analysis identified a Run-key entry named **reverse**, configured to launch **C:\Users\j0seph\AppData\Local\reverse.exe**.
 
-*Figure 08. Velociraptor evidence captured during phase 3 — persistence via startup registry.*
+The relationship between the suspicious memory region and the Run-key executable strengthens the persistence hypothesis, although the registry entry alone does not confirm that the executable was launched through this mechanism.
 
-![Figure 09 — Phase 3 — Persistence via Startup Registry](images/figure-09.png)
-
-*Figure 09. Velociraptor evidence captured during phase 3 — persistence via startup registry.*
+Suggested evidence — Figure 4: Velociraptor StartupItems results showing the reverse registry value, its executable path, and the HKLM Run-key location.
 
 ## Phase 4 — Mimikatz Artifact Discovery with YARA
 
@@ -133,56 +115,29 @@ The collection used a filename filter matching common executable, text, DLL, and
 nameRegex: (exe|txt|dll|php)$
 yaraRule: rule mimikatz { ... }
 ```
+**Finding**: YARA scanning identified Mimikatz-related executable and DLL artifacts within **C:\Users\j0seph\AppData\Local\mimik**.
 
-Source rule: https://github.com/gentilkiwi/mimikatz/blob/master/kiwi_passwords.yar
+These results indicate the presence of files matching Mimikatz-related detection patterns. They do not independently establish execution of Mimikatz, successful credential extraction, or credential compromise.
 
-![Figure 10 — Phase 4 — Mimikatz Artifact Discovery with YARA](images/figure-10.png)
+Suggested evidence — Figure 5: Velociraptor YARA collection configuration showing the Mimikatz detection rule and filename filter.
 
-*Figure 10. Velociraptor evidence captured during phase 4 — mimikatz artifact discovery with yara.*
-
-![Figure 11 — Phase 4 — Mimikatz Artifact Discovery with YARA](images/figure-11.png)
-
-*Figure 11. Velociraptor evidence captured during phase 4 — mimikatz artifact discovery with yara.*
-
-![Figure 12 — Phase 4 — Mimikatz Artifact Discovery with YARA](images/figure-12.png)
-
-*Figure 12. Velociraptor evidence captured during phase 4 — mimikatz artifact discovery with yara.*
-
-![Figure 13 — Phase 4 — Mimikatz Artifact Discovery with YARA](images/figure-13.png)
-
-*Figure 13. Velociraptor evidence captured during phase 4 — mimikatz artifact discovery with yara.*
-
-![Figure 14 — Phase 4 — Mimikatz Artifact Discovery with YARA](images/figure-14.png)
-
-*Figure 14. Velociraptor evidence captured during phase 4 — mimikatz artifact discovery with yara.*
-
-![Figure 15 — Phase 4 — Mimikatz Artifact Discovery with YARA](images/figure-15.png)
-
-*Figure 15. Velociraptor evidence captured during phase 4 — mimikatz artifact discovery with yara.*
+Suggested evidence — Figure 6: YARA scan results showing Mimikatz-related file matches under C:\Users\j0seph\AppData\Local\mimik.
 
 ## Phase 5 — Recent Document Access
 
-The `Windows.Registry.RecentDocs` artifact enumerated the Windows RecentDocs MRU registry data for the user. Expanding `MruEntries` revealed `insurance.DOCX` among the document entries. The lab answer identifies this as the requested recently accessed Word document; MRU evidence indicates recent interaction, not necessarily the exact time the file was opened.
+The `Windows.Registry.RecentDocs` artifact enumerated the Windows RecentDocs MRU registry data for the user. Expanding `MruEntries` revealed `insurance.DOCX` among the document entries. The registry artifact identifies it as a recently referenced Word document; MRU evidence indicates recent interaction, not necessarily the exact time the file was opened.
 
 ### Registry evidence
 
-The `MruEntries` list includes `insurance.DOCX` and other recent items. The lab-provided answer is `insurance.DOCX`; the screenshot does not establish an exact last-opened timestamp.
+**Finding**: RecentDocs analysis identified **insurance.DOCX** among the user's recently referenced documents.
 
-![Figure 16 — Phase 5 — Recent Document Access](images/figure-16.png)
+The available registry evidence supports recent document interaction but does not independently establish the exact last-opened timestamp or whether the document was accessed by an attacker.
 
-*Figure 16. Velociraptor evidence captured during phase 5 — recent document access.*
-
-![Figure 17 — Phase 5 — Recent Document Access](images/figure-17.png)
-
-*Figure 17. Velociraptor evidence captured during phase 5 — recent document access.*
-
-![Figure 18 — Phase 5 — Recent Document Access](images/figure-18.png)
-
-*Figure 18. Velociraptor evidence captured during phase 5 — recent document access.*
+Suggested evidence — Figure 7: Velociraptor RecentDocs results displaying insurance.DOCX within the MruEntries registry data.
 
 ## Consolidated Findings
 
-| Assessment question | Evidence | Answer |
+| Investigation area | Evidence | Observed finding |
 |---|---|---|
 | Suspicious process via VAD | Malfind collection returned an executable memory region | `reverse.exe` |
 | C2 server address | Cobalt Strike configuration `C2Server` field | `3.19.219.4` |
@@ -207,22 +162,14 @@ The `MruEntries` list includes `insurance.DOCX` and other recent items. The lab-
 - Quarantine and hash suspicious Mimikatz-related files after forensic preservation.
 - Validate access to `insurance.DOCX` using document access telemetry, if available.
 
-## Limitations and Evidentiary Confidence
-
-The screenshots document Velociraptor collection results but do not include a full forensic image, complete process memory, verified network session logs, or a chain-of-custody record. Therefore, findings about exfiltration, execution of Mimikatz, and confirmed C2 communications must remain hypotheses unless corroborated by additional telemetry. The local Velociraptor URL is a loopback management interface, not the C2 address.
-
 ## Investigation Outcome
 
-The five lab questions were answered using separate Velociraptor collections and correlated into an endpoint-focused threat-hunting narrative. The most compelling combined evidence is the suspicious `reverse.exe` memory region, a matching Run-key persistence entry, and an extracted C2 configuration. The YARA and RecentDocs results provide additional context for potential credential-access tooling and user activity.
+The five lab questions were answered using separate Velociraptor collections and correlated into an endpoint-focused threat-hunting narrative. 
+
+Five targeted Velociraptor artifact collections were used to investigate suspicious endpoint activity across memory, configuration, registry persistence, filesystem artifacts, and recent user-document references.
+
+The most compelling combined evidence is the suspicious `reverse.exe` memory region, a matching Run-key persistence entry, and an extracted C2 configuration. The YARA and RecentDocs results provide additional context for potential credential-access tooling and user activity.
 
 ## Conclusion
 
-This assessment demonstrates practical Velociraptor threat hunting through targeted memory inspection, configuration carving, registry analysis, YARA-based file discovery, and RecentDocs examination. The documented evidence supports prioritizing `reverse.exe` for deeper incident response and highlights the importance of distinguishing configuration artifacts from proven attacker actions.
-
-## References
-
-- [Velociraptor Documentation](https://docs.velociraptor.app/)
-- [MITRE ATT&CK](https://attack.mitre.org/)
-- [Mimikatz YARA rule](https://github.com/gentilkiwi/mimikatz/blob/master/kiwi_passwords.yar)
-
-
+This investigation demonstrates practical Velociraptor threat hunting through targeted memory inspection, configuration carving, registry analysis, YARA-based file discovery, and RecentDocs examination. The documented evidence supports prioritizing `reverse.exe` for deeper incident response and highlights the importance of distinguishing configuration artifacts from proven attacker actions.
