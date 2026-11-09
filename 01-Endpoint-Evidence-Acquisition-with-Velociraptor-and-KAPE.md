@@ -48,7 +48,9 @@ https://127.0.0.1:8889/app/index.html#/search/all
 
 The browser displayed a certificate trust warning (`NET::ERR_CERT_AUTHORITY_INVALID`). In this isolated training environment, the analyst selected **Advanced → Proceed to 127.0.0.1 (unsafe)** to reach the lab console. This is not a general recommendation for unknown or production websites.
 
-Suggested evidence — Figure 1: Velociraptor client interface showing the selected online endpoint and access to its collection interface.
+### Figure 1 - Velociraptor Endpoint Selection 
+
+![Figure 1 - Velociraptor Endpoint Selection](../images/endpoint-evidence-acquisition-with-velociraptor-and-kape/velociraptor-endpoint-selection.jpeg)
 
 ### Phase 2 — Artifact Collection
 
@@ -96,7 +98,9 @@ cd C:\Users\johndoe\Desktop\Get-ZimmermanTools\net6
 
 The PowerShell output confirms that both `UsnJournal` and `Mft` input types were processed and CSV outputs were generated.
 
-Suggested evidence — Figure 4: MFTECmd terminal output confirming successful parsing of NTFS $MFT and USN Journal artifacts.
+### Figure 2 - NTFS Artifact Parsing with MFTECmd 
+
+![Figure 2 - NTFS Artifact Parsing with MFTECmd](../images/endpoint-evidence-acquisition-with-velociraptor-and-kape/ntfs-artifact-parsing-with-mftecmd.jpeg)
 
 ### Phase 2 — Correlate File Name and Alternate Data Stream
 
@@ -138,7 +142,9 @@ The CSV was opened in Timeline Explorer and searched for `schtasks`. The **Execu
 schtasks /Create /TN "Microsoft-Windows-UpdateTask" ...
 schtasks /Create /TN "Microsoft-Windows-DiagnosticDataCollector" ...
 ```
-Suggested evidence — Figure 7: Timeline Explorer results showing schtasks /Create commands and the associated scheduled-task names.
+### Figure 3 - Scheduled Task Creation Evidence 
+
+![Figure 3 - Scheduled Task Creation Evidence](../images/endpoint-evidence-acquisition-with-velociraptor-and-kape/scheduled-task-creation-evidence.jpeg)
 
 **Finding**: Event-log analysis identified scheduled-task creation activity involving **Microsoft-Windows-DiagnosticDataCollector**. The observed command lines provide evidence of task-registration attempts. Determining malicious intent requires additional correlation with the task action, executable path, creator, and surrounding event records.
 
