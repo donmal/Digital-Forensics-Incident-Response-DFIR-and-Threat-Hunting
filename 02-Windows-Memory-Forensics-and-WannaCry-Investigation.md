@@ -63,6 +63,9 @@ tasksche.exe      PID 1792
   @WanaDecryptor   PID 1060   PPID 1792
     taskhsvc.exe   PID 3012   PPID 1060
 ```
+### Figure 4 - WannaCry Process Tree 
+
+![Figure 1 - WannaCry Process Tree](images/windows-memory-forensics-and-wannacry-investigation/wannacry-process-tree.png)
 
 The `@WanaDecryptor` row explicitly reports **PPID 1792**, and the process tree identifies **`tasksche.exe`** as PID 1792. The same tree also places `taskhsvc.exe` (PID 3012) beneath `@WanaDecryptor` (PID 1060), an observation relevant to the later DLL investigation.
 
@@ -90,6 +93,9 @@ The `handles` plugin restricts the search to PID 1792; `-t File` filters for fil
 ```text
 \Device\HarddiskVolume2\Windows\Temp\hibsys.WNCRYT
 ```
+### Figure 5 - Suspicious WNCRYT File Handle 
+
+![Figure 2 - Suspicious WNCRYT File Handle](images/windows-memory-forensics-and-wannacry-investigation/wannacry-file-handle.png)
 
 The same output includes references to the directory `\Device\HarddiskVolume2\ProgramData\ggzstcat367` and a file named `00000000.eky`. These are contextual artifacts and do not, on their own, establish their purpose.
 
@@ -125,6 +131,9 @@ The DLL listing includes:
 ```text
 C:\ProgramData\ggzstcat367\TaskData\Tor\zlib1.dll
 ```
+### Figure 6 - zlib1.dll Module Attribution 
+
+![Figure 3 - zlib1.dll Module Attribution](images/windows-memory-forensics-and-wannacry-investigation/wannacry-zlib-dll-analysis.png)
 
 The `zlib1.dll` library is a compression-related DLL. Its presence in a process module list confirms that it was loaded or mapped in the captured process context; it does **not** by itself show that the process downloaded the DLL, nor does the DLL name alone prove maliciousness. The process path and the surrounding artifacts provide the investigative context.
 
