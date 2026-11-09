@@ -111,7 +111,7 @@ The YARA output displayed **three matches** for `$s1`, at offsets `0x1508478f`, 
 
 ### Figure 8 - YARA PowerView Detection 
 
-![Figure 2 - YARA PowerView Detection](/Digital-Forensics-Incident-Response-DFIR-and-Threat-Hunting/images/advanced-dfir-and-attack-reconstruction/yara-powerview-detection.jpeg)
+![Figure 2 - YARA PowerView Detection](./images/advanced-dfir-and-attack-reconstruction/yara-powerview-detection.jpeg)
 
 **Finding**: Memory-string inspection and YARA scanning identified PowerView-related content in the extracted memory of PowerShell PID **6744**. Three string occurrences corroborated the identification of PowerView as a PowerSploit-related artifact. The available evidence supports the presence of PowerView-related content in memory but does not independently confirm which functions, if any, were executed.
 
@@ -135,7 +135,7 @@ A search for `advanced_ip_scanner.exe` in the journal export showed file-system 
 
 ### Figure 9 - USN Journal Scanner Artifacts 
 
-![Figure 3 - USN Journal Scanner Artifacts](/Digital-Forensics-Incident-Response-DFIR-and-Threat-Hunting/images/advanced-dfir-and-attack-reconstruction/usn-journal-scanner-artifacts.jpeg)
+![Figure 3 - USN Journal Scanner Artifacts](./images/advanced-dfir-and-attack-reconstruction/usn-journal-scanner-artifacts.jpeg)
 
 The analyst opened the existing Autopsy case at:
 
@@ -147,7 +147,7 @@ An Autopsy keyword search for `advanced.zip` returned 17 results in the displaye
 
 ### Figure 10 - Advanced IP Scanner Archive Contents 
 
-![Figure 4 - Advanced IP Scanner Archive Contents](/Digital-Forensics-Incident-Response-DFIR-and-Threat-Hunting/images/advanced-dfir-and-attack-reconstruction/advanced-ip-scanner-archive-contents.jpeg)
+![Figure 4 - Advanced IP Scanner Archive Contents](./images/advanced-dfir-and-attack-reconstruction/advanced-ip-scanner-archive-contents.jpeg)
 
 ### Phase 8 — Sysmon Correlation and Process Attribution
 
@@ -155,7 +155,7 @@ The analyst then reviewed the indexed `Microsoft-Windows-Sysmon%4Operational.evt
 
 ### Figure 11 - Sysmon and Rundll32 Correlation 
 
-![Figure 5 - Sysmon Rundll32 Correlation](/Digital-Forensics-Incident-Response-DFIR-and-Threat-Hunting/images/advanced-dfir-and-attack-reconstruction/sysmon-and-rundll32-correlation.jpeg)
+![Figure 5 - Sysmon and Rundll32 Correlation](./images/advanced-dfir-and-attack-reconstruction/sysmon-and-rundll32-correlation.jpeg)
 
 The screenshots show indexed text/keyword previews rather than the complete decoded Sysmon event fields. Consequently, the exact event ID, process GUID, file-creation field names, and complete causal chain cannot be independently verified from the images alone. A full event-level review would be needed to confirm whether `rundll32.exe` created, wrote, or otherwise handled the archive and whether a separate process extracted its contents.
 
