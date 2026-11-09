@@ -81,7 +81,7 @@ The screenshot of the resulting text includes PowerShell content, and a text sea
 
 ### Figure 7 - PowerView Strings in Process Memory
 
-![Figure 1 - PowerSploit PowerView Reference](https://raw.githubusercontent.com/donakropoli/Digital-Forensics-Incident-Response-DFIR-and-Threat-Hunting/main/images/advanced-dfir-and-attack-reconstruction/powersploit-powerview-reference.jpeg)
+![Figure 1 - PowerSploit PowerView Reference](./images/advanced-dfir-and-attack-reconstruction/powersploit-powerview-reference.jpeg)
 
 ### Phase 5 — YARA Corroboration
 
