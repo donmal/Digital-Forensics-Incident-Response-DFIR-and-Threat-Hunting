@@ -116,7 +116,7 @@ Suggested evidence — Figure 5: Timeline Explorer search results showing the re
 
 ---
 
-## Investigation 3 — Scheduled Task Creation from Windows Event Logs (Module Question 3.B)
+## Investigation 3 — Scheduled Task Creation from Windows Event Logs
 
 ### Investigation Scenario
 
@@ -150,7 +150,7 @@ schtasks /Create /TN "Microsoft-Windows-DiagnosticDataCollector" ...
 
 ---
 
-## Investigation 4 — Suspicious Process Activity in API Monitor (Module Question 3.C)
+## Investigation 4 — Suspicious Process Activity in API Monitor
 
 ### Investigation Scenario
 
