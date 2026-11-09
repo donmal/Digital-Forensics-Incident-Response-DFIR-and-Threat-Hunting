@@ -1,6 +1,5 @@
 # Digital Forensics & Incident Response (DFIR) — Investigation Portfolio
-
-**Windows Forensics | Memory Analysis | Attack Reconstruction | Endpoint Threat Hunting**
+| Hack-the-Box Academy |
 
 ## Overview
 
@@ -27,9 +26,9 @@ Each case study describes its investigative objectives, data sources, methodolog
 
 **Work performed:** Velociraptor/KAPE acquisition; NTFS rename and `Zone.Identifier` correlation; scheduled-task creation analysis using EVTX-derived data; and API Monitor process-behavior review.
 
-**Key findings:** A renamed `microsoft.windowskits.feedback.exe` artifact and the `Microsoft-Windows-DiagnosticDataCollector` scheduled task were identified. The acquisition exercise's requested task name and the API Monitor exercise's injection hypothesis were not independently established by the available evidence.
+**Key findings:** A renamed `microsoft.windowskits.feedback.exe` artifact and the `Microsoft-Windows-DiagnosticDataCollector` scheduled task were identified.
 
-**[Read Investigation 01](01-Evidence-Acquisition-and-Windows-Artifact-Analysis/README.md)**
+The available evidence did not independently confirm the suspected process-injection behavior or establish all details of the scheduled-task activity.
 
 ### 02 — Windows Memory Forensics & WannaCry Investigation
 
@@ -39,8 +38,6 @@ Each case study describes its investigative objectives, data sources, methodolog
 
 **Key findings:** `tasksche.exe` was identified as the parent of `@WanaDecryptor`; a handle referenced `hibsys.WNCRYT`; and `zlib1.dll` appeared in the `taskhsvc.exe` module listing (PID `3012`). The available evidence does not independently establish the initial infection vector or a complete encryption timeline.
 
-**[Read Investigation 02](02-Windows-Memory-Forensics-and-WannaCry-Investigation/README.md)**
-
 ### 03 — Advanced DFIR & Attack Reconstruction
 
 **Objective:** Examine a suspicious PowerShell process and correlate filesystem and event evidence to investigate the introduction of a scanning utility.
@@ -49,8 +46,6 @@ Each case study describes its investigative objectives, data sources, methodolog
 
 **Key findings:** Three YARA string matches supported the presence of **PowerView** in the memory dump. `advanced_ip_scanner.exe` was associated with `advanced.zip`, and the available Sysmon preview associated `rundll32.exe` with archive activity. String presence does not by itself prove PowerView execution, and the exact transfer mechanism was not established.
 
-**[Read Investigation 03](03-Advanced-DFIR-and-Attack-Reconstruction/README.md)**
-
 ### 04 — Velociraptor Threat Hunting
 
 **Objective:** Triage a suspicious endpoint following indications of possible data exfiltration and investigate memory, command-and-control configuration, persistence, and user activity.
@@ -58,8 +53,6 @@ Each case study describes its investigative objectives, data sources, methodolog
 **Work performed:** Velociraptor collections for VAD/Malfind analysis, Cobalt Strike configuration carving, startup-item inspection, YARA file scanning, and RecentDocs analysis.
 
 **Key findings:** `reverse.exe` was flagged for suspicious executable memory; the carved configuration contained C2 address `3.19.219.4`; an HKLM Run-key entry indicated persistence; Mimikatz-related files were found under `C:\Users\j0seph\AppData\Local\mimik`; and RecentDocs listed `insurance.DOCX`. A configured C2 address does not alone establish active communications or successful exfiltration.
-
-**[Read Investigation 04](04-Velociraptor-Threat-Hunting/README.md)**
 
 ## Technical Skills Demonstrated
 
@@ -73,27 +66,6 @@ Each case study describes its investigative objectives, data sources, methodolog
 ## Tools and Technologies
 
 `Velociraptor` · `KAPE` · `Volatility / Volatility 3` · `Sysinternals Strings` · `YARA` · `Autopsy` · `Sysmon` · `USN Journal Parser` · `Timeline Explorer` · `API Monitor` · `Windows Registry` · `EVTX` · `NTFS`
-
-## Repository Structure
-
-```text
-DFIR-Investigation-Portfolio/
-├── README.md
-├── 01-Evidence-Acquisition-and-Windows-Artifact-Analysis/
-│   ├── README.md
-│   └── images/
-├── 02-Windows-Memory-Forensics-and-WannaCry-Investigation/
-│   ├── README.md
-│   └── images/
-├── 03-Advanced-DFIR-and-Attack-Reconstruction/
-│   ├── README.md
-│   └── images/
-└── 04-Velociraptor-Threat-Hunting/
-    ├── README.md
-    └── images/
-```
-
-*The structure above is the intended GitHub layout. Keep each project's screenshots in its own `images/` directory so relative image links resolve correctly.*
 
 ## Investigative Standards and Evidence Limitations
 
