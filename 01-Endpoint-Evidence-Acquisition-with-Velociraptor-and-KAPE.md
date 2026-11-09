@@ -100,7 +100,7 @@ The PowerShell output confirms that both `UsnJournal` and `Mft` input types were
 
 ### Figure 2 - NTFS Artifact Parsing with MFTECmd 
 
-![Figure 2 - NTFS Artifact Parsing with MFTECmd](../images/endpoint-evidence-acquisition-with-velociraptor-and-kape/ntfs-artifact-parsing-with-mftecmd.jpeg)
+![Figure 2 - NTFS Artifact Parsing with MFTECmd](images/endpoint-evidence-acquisition-with-velociraptor-and-kape/ntfs-artifact-parsing-with-mftecmd.jpeg)
 
 ### Phase 2 — Correlate File Name and Alternate Data Stream
 
@@ -144,7 +144,7 @@ schtasks /Create /TN "Microsoft-Windows-DiagnosticDataCollector" ...
 ```
 ### Figure 3 - Scheduled Task Creation Evidence 
 
-![Figure 3 - Scheduled Task Creation Evidence](../images/endpoint-evidence-acquisition-with-velociraptor-and-kape/scheduled-task-creation-evidence.jpeg)
+![Figure 3 - Scheduled Task Creation Evidence](images/endpoint-evidence-acquisition-with-velociraptor-and-kape/scheduled-task-creation-evidence.jpeg)
 
 **Finding**: Event-log analysis identified scheduled-task creation activity involving **Microsoft-Windows-DiagnosticDataCollector**. The observed command lines provide evidence of task-registration attempts. Determining malicious intent requires additional correlation with the task action, executable path, creator, and surrounding event records.
 
