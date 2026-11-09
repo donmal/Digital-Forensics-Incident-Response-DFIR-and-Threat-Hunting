@@ -46,13 +46,15 @@ The investigation followed an evidence-driven collection workflow: identify the 
 
 The Velociraptor web interface was opened on the authorized lab host. The client inventory initially showed 105 matching clients. Filtering to online clients isolated the connected endpoint `E-CORP`, which was selected for subsequent artifact collections.
 
+### Figure 12 - Velociraptor Endpoint Selection 
+
+![Figure 1 - Velociraptor Endpoint Selection](images/velociraptor-threat-hunting/velociraptor-endpoint-online.png)
+
 ### Endpoint workflow
 
 1. Connect to the lab target using RDP.
 2. Open the local Velociraptor interface and authenticate using the supplied lab credentials.
 3. Filter the client list to online endpoints, select `E-CORP`, and open **Collected**.
-
-Suggested evidence — Figure 1: Velociraptor client inventory showing the selected online E-CORP endpoint and its collection interface.
 
 ## Phase 1 — VAD-Based Process Injection Triage
 
@@ -66,7 +68,9 @@ The reported executable-memory region warrants further validation through proces
 
 The finding supports prioritizing **reverse.exe** for further investigation, but does not independently confirm process injection or identify the payload's execution history.
 
-Suggested evidence — Figure 2: Velociraptor Malfind results showing reverse.exe and its suspicious executable-memory region, including the reported memory permissions.
+### Figure 13 - Malfind: reverse.exe
+
+![Figure 2 - Malfind Suspicious Memory](images/velociraptor-threat-hunting/velociraptor-malfind-reverse.png)
 
 ## Phase 2 — Cobalt Strike Configuration Carving
 
@@ -79,11 +83,13 @@ The `Windows.Carving.CobaltStrike` artifact was collected to extract suspected C
 | `C2Server` | `3.19.219.4` |
 | `PostURI` | `/submit.php` |
 
+### Figure 14 - Cobalt Strike C2 Configuration 
+
+![Figure 3 - Cobalt Strike C2 Configuration](images/velociraptor-threat-hunting/velociraptor-cobaltstrike-c2.png)
+
 **Finding**: Configuration carving identified **3.19.219.4** as the configured command-and-control server address, with **/submit.php** recorded as the HTTP POST URI.
 
 Evidence limitation: The extracted configuration establishes the presence of C2-related settings, but successful outbound communication or data exfiltration would require independent validation through network telemetry.
-
-Suggested evidence — Figure 3: Velociraptor Cobalt Strike configuration-carving output showing C2Server: 3.19.219.4 and PostURI: /submit.php.
 
 ## Phase 3 — Persistence via Startup Registry
 
@@ -101,7 +107,9 @@ Data: C:\Users\j0seph\AppData\Local\reverse.exe
 
 The relationship between the suspicious memory region and the Run-key executable strengthens the persistence hypothesis, although the registry entry alone does not confirm that the executable was launched through this mechanism.
 
-Suggested evidence — Figure 4: Velociraptor StartupItems results showing the reverse registry value, its executable path, and the HKLM Run-key location.
+### Figure 15 - Registry Run-Key Persistence 
+
+![Figure 4 - Run-Key Persistence](images/velociraptor-threat-hunting/velocripator-runkey-persistence.png)
 
 ## Phase 4 — Mimikatz Artifact Discovery with YARA
 
@@ -119,9 +127,9 @@ yaraRule: rule mimikatz { ... }
 
 These results indicate the presence of files matching Mimikatz-related detection patterns. They do not independently establish execution of Mimikatz, successful credential extraction, or credential compromise.
 
-Suggested evidence — Figure 5: Velociraptor YARA collection configuration showing the Mimikatz detection rule and filename filter.
+### Figure 16 - Mimikatz YARA Results
 
-Suggested evidence — Figure 6: YARA scan results showing Mimikatz-related file matches under C:\Users\j0seph\AppData\Local\mimik.
+![Figure 5 - Mimikatz YARA Results](images/velociraptor-threat-hunting/velociraptor-yara-mimikatz-results.png)
 
 ## Phase 5 — Recent Document Access
 
@@ -133,7 +141,9 @@ The `Windows.Registry.RecentDocs` artifact enumerated the Windows RecentDocs MRU
 
 The available registry evidence supports recent document interaction but does not independently establish the exact last-opened timestamp or whether the document was accessed by an attacker.
 
-Suggested evidence — Figure 7: Velociraptor RecentDocs results displaying insurance.DOCX within the MruEntries registry data.
+### Figure 16 - RecentDocs Word Document 
+
+
 
 ## Consolidated Findings
 
