@@ -175,8 +175,4 @@ ATT&CK mappings above are investigative considerations, not claims that all tech
 
 Volatility analysis of the Windows 7 memory image identified **`tasksche.exe`** as the parent of `@WanaDecryptor` (PID 1060), recovered the suspicious file name **`hibsys.WNCRYT`** from handles belonging to `tasksche.exe` (PID 1792), and associated **`zlib1.dll`** with **`taskhsvc.exe`** (PID 3012). This case study demonstrates process-tree reconstruction, file-handle analysis, and loaded-module attribution as complementary techniques in Windows memory forensics.
 
----
-
-*Portfolio note: This report documents authorized training-lab analysis. All conclusions are limited to the evidence displayed in the provided captures.*
-
 
