@@ -39,11 +39,7 @@ The investigation was performed in a controlled Hack The Box Academy Windows DFI
 
 The analyst consulted the archived `PowerShellMafia/PowerSploit` repository and reviewed its **v3.0.0** release notes. The release notes explicitly reference **PowerView** and **PowerUp**, providing a grounded list of candidate tool names for memory inspection. The repository being archived and the release being old are provenance details; they do not by themselves establish use on the examined endpoint.
 
-![PowerSploit repository overview](images/figure-01.png)
-
-![PowerSploit release link](images/figure-02.png)
-
-![PowerSploit v3.0.0 release notes](images/figure-03.png)
+Suggested evidence — Figure 1: PowerSploit repository or release documentation identifying PowerView as a PowerSploit component.
 
 ### Phase 2 — Preparing Sysinternals Strings
 
@@ -59,12 +55,6 @@ The analyst then connected to the lab Windows host with an RDP shared drive, tra
 xfreerdp /v:<TARGET_IP> /u:johndoe /p:<LAB_PASSWORD> /dynamic-resolution /drive:share,<LOCAL_SHARED_DIRECTORY>
 ```
 
-![Sysinternals Suite download](images/figure-04.png)
-
-![Extracted Sysinternals tools](images/figure-05.png)
-
-![Sysinternals Strings EULA](images/figure-06.png)
-
 ### Phase 3 — Extracting PowerShell PID 6744 Memory
 
 From the Windows command prompt, the analyst ran Volatility 3 against the acquired physical-memory image, selecting PID 6744 and requesting a dump of mapped memory pages:
@@ -76,7 +66,7 @@ python vol.py -q -f ..\memdump\PhysicalMemory.raw windows.memmap --pid 6744 --du
 
 The resulting artifact was identified as `pid.6744.dmp` in the Volatility working directory. This step extracts memory content associated with the selected process rather than generating a new live-memory capture.
 
-![Volatility process memory dump](images/figure-07.png)
+Suggested evidence — Figure 2: Volatility 3 output showing memory extraction for PowerShell PID 6744 and the generated process dump.
 
 ### Phase 4 — String-Based Memory Examination
 
@@ -89,9 +79,7 @@ notepad a.txt
 
 The screenshot of the resulting text includes PowerShell content, and a text search reveals the string **`PowerView`** within PowerShell source-like material, including references such as `PowerView.RDPSessionInfo`. This is evidence of PowerView-related content resident in the dumped memory.
 
-![Strings extracted from PID 6744](images/figure-08.png)
-
-![PowerView found in process memory](images/figure-09.png)
+Suggested evidence — Figure 3: Extracted memory strings showing PowerView references, including PowerView.RDPSessionInfo, within the PowerShell process dump.
 
 ### Phase 5 — YARA Corroboration
 
@@ -108,7 +96,9 @@ rule ExampleRule
 }
 ```
 
-The rule was saved as `powerview.yar` and executed against the process dump. A corrected example, using the actual rule filename rather than the mistyped `powerview\.yar`, is:
+The rule was saved as `powerview.yar` and executed against the process dump.
+
+The following command was used to scan the extracted memory dump with the YARA rule:
 
 ```cmd
 cd C:\Users\johndoe\Desktop\yara-4.3.2-2150-win64
@@ -117,11 +107,9 @@ yara64.exe -s C:\Users\johndoe\Desktop\powerview.yar C:\Users\johndoe\Desktop\vo
 
 The YARA output displayed **three matches** for `$s1`, at offsets `0x1508478f`, `0x15084ce7`, and `0x15084ea9`. The output showed wide-character bytes (`P\x00o\x00...`), consistent with a UTF-16LE representation of `PowerView`. These are three string occurrences, **not** three proven executions of PowerView. No `$s2` match is visible in the provided result.
 
-![YARA rule authored in Notepad](images/figure-10.png)
+Suggested evidence — Figure 4: YARA scan output showing three PowerView string matches in pid.6744.dmp, including the reported offsets.
 
-![Saving the YARA rule](images/figure-11.png)
-
-![YARA matches in the process dump](images/figure-12.png)
+**Finding**: Memory-string inspection and YARA scanning identified PowerView-related content in the extracted memory of PowerShell PID **6744**. Three string occurrences corroborated the identification of PowerView as a PowerSploit-related artifact. The available evidence supports the presence of PowerView-related content in memory but does not independently confirm which functions, if any, were executed.
 
 **Investigation answer 1: `PowerView`.**
 
@@ -135,15 +123,13 @@ python C:\Users\johndoe\Desktop\files\USN-Journal-Parser-master\usnparser\usn.py
 
 The exported `usn_output.csv` was opened in LibreOffice Calc. In the screenshot, the import dialog shows **Fixed width** selected, resulting in the CSV records appearing together in a single visible column. This still permitted text search, although comma-separated import would be preferable for column-wise analysis.
 
-![USN Journal parser execution](images/figure-13.png)
-
-![USN CSV import in LibreOffice](images/figure-14.png)
+Suggested evidence — Figure 5: USN Journal parser output confirming extraction of NTFS change records into usn_output.csv.
 
 ### Phase 7 — Correlating the Executable with an Archive
 
 A search for `advanced_ip_scanner.exe` in the journal export showed file-system entries for the executable and related artifacts. The analyst also identified **`advanced.zip`** in the investigative timeline, providing a plausible archive source for the executable. Temporal proximity alone does not prove a parent-child process relationship.
 
-![USN timeline showing scanner artifacts](images/figure-15.png)
+Suggested evidence — Figure 6: USN Journal timeline showing filesystem records associated with advanced_ip_scanner.exe.
 
 The analyst opened the existing Autopsy case at:
 
@@ -153,11 +139,7 @@ C:\Users\johndoe\Desktop\MalwareAttack\MalwareAttack.aut
 
 An Autopsy keyword search for `advanced.zip` returned 17 results in the displayed case view. The archive was located, extracted for inspection, and its contents were reviewed in Windows File Explorer. The archive contained **`advanced_ip_scanner.exe`**, directly supporting the archive-to-executable relationship.
 
-![Autopsy case selection](images/figure-16.png)
-
-![Autopsy keyword results for advanced.zip](images/figure-17.png)
-
-![advanced.zip archive contents](images/figure-18.png)
+Suggested evidence — Figure 7: Autopsy or archive inspection showing advanced.zip and its contained executable advanced_ip_scanner.exe.
 
 ### Phase 8 — Sysmon Correlation and Process Attribution
 
@@ -165,11 +147,9 @@ The analyst then reviewed the indexed `Microsoft-Windows-Sysmon%4Operational.evt
 
 The screenshots show indexed text/keyword previews rather than the complete decoded Sysmon event fields. Consequently, the exact event ID, process GUID, file-creation field names, and complete causal chain cannot be independently verified from the images alone. A full event-level review would be needed to confirm whether `rundll32.exe` created, wrote, or otherwise handled the archive and whether a separate process extracted its contents.
 
-![Autopsy Sysmon log correlation](images/figure-19.png)
+Suggested evidence — Figure 8: Autopsy-indexed Sysmon evidence showing the association between advanced.zip and C:\Windows\System32\rundll32.exe.
 
-![Sysmon preview identifying rundll32.exe](images/figure-20.png)
-
-**Investigation answer 2: `rundll32.exe`.**
+**Finding**: Cross-source correlation of NTFS USN Journal records, Autopsy artifacts, and indexed Sysmon content identified **rundll32.exe** as a process associated with activity involving **advanced.zip**. The archive contained **advanced_ip_scanner.exe**, supporting a relationship between the archive and the executable. The precise archive-creation, transfer, and extraction sequence remains unverified.
 
 ## Consolidated Evidence and Findings
 
@@ -200,10 +180,11 @@ The screenshots show indexed text/keyword previews rather than the complete deco
 
 ## Investigation Outcome
 
-| Question | Answer | Evidence basis |
-|---|---|---|
-| Which PowerSploit tool appears in the memory of PowerShell PID 6744? | **PowerView** | Strings and three YARA matches in `pid.6744.dmp` |
-| Which process is associated with the introduction of `advanced_ip_scanner.exe`? | **rundll32.exe** | USN/Autopsy archive correlation and Sysmon keyword preview |
+The investigation produced two principal findings:
+
+**Memory-based tool identification**: PowerView-related strings were identified within the extracted memory of PowerShell PID **6744**, with three corroborating YARA matches. These findings establish the presence of identifiable tool-related content without independently proving execution of specific PowerView functions.
+
+**Filesystem and process correlation**: NTFS journal analysis and Autopsy examination associated **advanced_ip_scanner.exe** with **advanced.zip**. Indexed Sysmon evidence further associated **rundll32.exe** with the archive activity, although the complete sequence of file introduction and extraction could not be independently reconstructed.
 
 ## Conclusion
 
