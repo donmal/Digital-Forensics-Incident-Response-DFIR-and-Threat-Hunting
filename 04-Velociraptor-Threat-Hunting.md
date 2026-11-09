@@ -109,7 +109,7 @@ The relationship between the suspicious memory region and the Run-key executable
 
 ### Figure 15 - Registry Run-Key Persistence 
 
-![Figure 4 - Run-Key Persistence](images/velociraptor-threat-hunting/velocripator-runkey-persistence.png)
+![Figure 4 - Run-Key Persistence](images/velociraptor-threat-hunting/velociraptor-runkey-persistence.png)
 
 ## Phase 4 — Mimikatz Artifact Discovery with YARA
 
