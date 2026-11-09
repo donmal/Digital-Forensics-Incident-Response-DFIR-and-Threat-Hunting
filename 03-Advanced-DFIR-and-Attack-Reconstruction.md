@@ -79,7 +79,9 @@ notepad a.txt
 
 The screenshot of the resulting text includes PowerShell content, and a text search reveals the string **`PowerView`** within PowerShell source-like material, including references such as `PowerView.RDPSessionInfo`. This is evidence of PowerView-related content resident in the dumped memory.
 
-Suggested evidence — Figure 3: Extracted memory strings showing PowerView references, including PowerView.RDPSessionInfo, within the PowerShell process dump.
+### Figure 7 - PowerView Strings in Process Memory
+
+![Figure 1 - PowerSploit PowerView Reference](/Digital-Forensics-Incident-Response-DFIR-and-Threat-Hunting/images/advanced-dfir-and-attack-reconstruction/powersploit-powerview-reference.jpeg)
 
 ### Phase 5 — YARA Corroboration
 
@@ -107,7 +109,9 @@ yara64.exe -s C:\Users\johndoe\Desktop\powerview.yar C:\Users\johndoe\Desktop\vo
 
 The YARA output displayed **three matches** for `$s1`, at offsets `0x1508478f`, `0x15084ce7`, and `0x15084ea9`. The output showed wide-character bytes (`P\x00o\x00...`), consistent with a UTF-16LE representation of `PowerView`. These are three string occurrences, **not** three proven executions of PowerView. No `$s2` match is visible in the provided result.
 
-Suggested evidence — Figure 4: YARA scan output showing three PowerView string matches in pid.6744.dmp, including the reported offsets.
+### Figure 8 - YARA PowerView Detection 
+
+![Figure 2 - YARA PowerView Detection](/Digital-Forensics-Incident-Response-DFIR-and-Threat-Hunting/images/advanced-dfir-and-attack-reconstruction/yara-powerview-detection.jpeg)
 
 **Finding**: Memory-string inspection and YARA scanning identified PowerView-related content in the extracted memory of PowerShell PID **6744**. Three string occurrences corroborated the identification of PowerView as a PowerSploit-related artifact. The available evidence supports the presence of PowerView-related content in memory but does not independently confirm which functions, if any, were executed.
 
@@ -129,7 +133,9 @@ Suggested evidence — Figure 5: USN Journal parser output confirming extraction
 
 A search for `advanced_ip_scanner.exe` in the journal export showed file-system entries for the executable and related artifacts. The analyst also identified **`advanced.zip`** in the investigative timeline, providing a plausible archive source for the executable. Temporal proximity alone does not prove a parent-child process relationship.
 
-Suggested evidence — Figure 6: USN Journal timeline showing filesystem records associated with advanced_ip_scanner.exe.
+### Figure 9 - USN Journal Scanner Artifacts 
+
+![Figure 3 - USN Journal Scanner Artifacts](/Digital-Forensics-Incident-Response-DFIR-and-Threat-Hunting/images/advanced-dfir-and-attack-reconstruction/usn-journal-scanner-artifacts.jpeg)
 
 The analyst opened the existing Autopsy case at:
 
@@ -139,15 +145,20 @@ C:\Users\johndoe\Desktop\MalwareAttack\MalwareAttack.aut
 
 An Autopsy keyword search for `advanced.zip` returned 17 results in the displayed case view. The archive was located, extracted for inspection, and its contents were reviewed in Windows File Explorer. The archive contained **`advanced_ip_scanner.exe`**, directly supporting the archive-to-executable relationship.
 
-Suggested evidence — Figure 7: Autopsy or archive inspection showing advanced.zip and its contained executable advanced_ip_scanner.exe.
+### Figure 10 - Advanced IP Scanner Archive Contents 
+
+![Figure 4 - Advanced IP Scanner Archive Contents](/Digital-Forensics-Incident-Response-DFIR-and-Threat-Hunting/images/advanced-dfir-and-attack-reconstruction/advanced-ip-scanner-archive-contents.jpeg)
 
 ### Phase 8 — Sysmon Correlation and Process Attribution
 
 The analyst then reviewed the indexed `Microsoft-Windows-Sysmon%4Operational.evtx` artifact in Autopsy. The visible keyword-preview content associates `advanced.zip` with `C:\Windows\System32\rundll32.exe`, alongside host and timestamp information. This supports **`rundll32.exe`** as the process associated with the archive-creation activity described by the lab.
 
+### Figure 11 - Sysmon and Rundll32 Correlation 
+
+![Figure 5 - Sysmon Rundll32 Correlation](/Digital-Forensics-Incident-Response-DFIR-and-Threat-Hunting/images/advanced-dfir-and-attack-reconstruction/sysmon-and-rundll32-correlation.jpeg)
+
 The screenshots show indexed text/keyword previews rather than the complete decoded Sysmon event fields. Consequently, the exact event ID, process GUID, file-creation field names, and complete causal chain cannot be independently verified from the images alone. A full event-level review would be needed to confirm whether `rundll32.exe` created, wrote, or otherwise handled the archive and whether a separate process extracted its contents.
 
-Suggested evidence — Figure 8: Autopsy-indexed Sysmon evidence showing the association between advanced.zip and C:\Windows\System32\rundll32.exe.
 
 **Finding**: Cross-source correlation of NTFS USN Journal records, Autopsy artifacts, and indexed Sysmon content identified **rundll32.exe** as a process associated with activity involving **advanced.zip**. The archive contained **advanced_ip_scanner.exe**, supporting a relationship between the archive and the executable. The precise archive-creation, transfer, and extraction sequence remains unverified.
 
