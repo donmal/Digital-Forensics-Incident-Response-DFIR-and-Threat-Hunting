@@ -50,7 +50,7 @@ The browser displayed a certificate trust warning (`NET::ERR_CERT_AUTHORITY_INVA
 
 ### Figure 1 - Velociraptor Endpoint Selection 
 
-![Figure 1 - Velociraptor Endpoint Selection](../images/endpoint-evidence-acquisition-with-velociraptor-and-kape/velociraptor-endpoint-selection.jpeg)
+![Figure 1 - Velociraptor Endpoint Selection](images/endpoint-evidence-acquisition-with-velociraptor-and-kape/velociraptor-endpoint-selection.jpeg)
 
 ### Phase 2 — Artifact Collection
 
@@ -78,7 +78,7 @@ Evidence limitation: The available screenshots do not independently establish th
 
 ---
 
-## Investigation 2 — NTFS File Rename and Zone.Identifier Correlation (Module Question 3.A)
+## Investigation 2 — NTFS File Rename and Zone.Identifier Correlation
 
 ### Investigation Scenario
 
